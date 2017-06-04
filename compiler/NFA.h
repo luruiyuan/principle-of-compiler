@@ -140,6 +140,7 @@ private:
 		new_NFA->init();
 		new_NFA->start->add_next_node(epsilon, *nfa.start);
 		new_NFA->start->add_next_node(epsilon, *new_NFA->end);
+		nfa.end->add_next_node(epsilon, *new_NFA->end);
 
 		return new_NFA;
 	}
@@ -165,14 +166,21 @@ private:
 	}
 
 	// 重载 NFA 连接运算
+	// 注意, 连接运算不能单纯将两个NFA用ε连接, 这是不等价的
+	// 必须将第二NFA的start结点用第一个的end结点替换掉
 	friend NFA* operator + (NFA& nfa1, NFA& nfa2) {
 		NFA *new_NFA = new NFA;  // start end 指针默认为nullptr
 		N_node *n1 = nfa1.start, *n2 = nfa2.end;
-
 		new_NFA->start = n1;
 		new_NFA->end = n2;
-		nfa1.end->add_next_node(epsilon, *(nfa2.start));
-
+		N_node *n1end = nfa1.end, *n2start = nfa2.start; // 替换
+		for (auto p : n2start->next) {
+			for (auto n_ptr : *p.second) {
+				nfa1.end->add_next_node(p.first, *n_ptr);
+			}
+		}
+		delete n2start;
+		nfa2.start = nullptr;
 		return new_NFA;
 	}
 
@@ -271,8 +279,8 @@ NFA::~NFA()
 	queue<N_node*> bfs_q;
 	set<N_node*> &vis_node = NFA::vis_N_node_destroy; // 这里原本希望用id来标识结点, 但是出现自环时, 已释放的结点的id会变化, 因此只能直接用地址来标识结点
 
-	if (vis_node.count(this->start)) // 用bfs的方式释放内存, 所有结点在第一次bfs时已释放, 因此用 set 查重
-		return;
+	if (this->start == nullptr || vis_node.count(this->start)) return;// 用bfs的方式释放内存, 所有结点在第一次bfs时已释放, 因此用 set 查重
+		
 
 	bfs_q.push(this->start);
 	vis_node.insert(this->start);

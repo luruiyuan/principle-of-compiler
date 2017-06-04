@@ -13,8 +13,13 @@ using namespace std;
 #include "table.h"
 // 包含正规式处理类
 #include "regexp.h"
+using namespace reg2NFA;
+using namespace NFA2DFA;
+
 // 包含NFA
 #include "NFA.h"
+
+
 
 // 内存泄漏检测
 #include <stdlib.h>  
@@ -34,9 +39,9 @@ void EnableMemLeakCheck()
 
 int main()
 {
-	// 检测内存写咯
+	// 检测内存泄露
 	EnableMemLeakCheck();
-	//_CrtSetBreakAlloc(180);
+	//_CrtSetBreakAlloc(1037);
 
 	//cout << "输出流重载测试" << endl;
 	//streambuf* cout_stream = cout.rdbuf();// 存储cout缓冲区
@@ -181,20 +186,6 @@ int main()
 	//cout << "输出char*:" << buff << "输出string: " << string(buff) << endl;
 	//cout << "测试成功" << endl;
 
-	//cout << "测试正规式转为 NFA" << endl;
-	//string n1 = "ab", n2 = "a|b", n3 = "a*";
-	//string n4 = "(ab|a)(a|bc*)*";
-	//NFA *nfa1 = regexp2NFA(n1);
-	//NFA* nfa2 = regexp2NFA(n2);
-	//NFA* nfa3 = regexp2NFA(n3);
-	//NFA* nfa4 = regexp2NFA(n4);
-	//cout << "输出nfa以便检查" << endl;
-	//cout << *nfa1 << *nfa2 << *nfa3 << *nfa4;
-	//cout << "正规式转换为NFA成功" << endl;
-	//cout << "销毁所有NFA" << endl;
-	//NFA::destroy_all_nfa();
-	//cout << "销毁完成" << endl;
-
 	//set<int> a, b;
 	//set<set<int>> c;
 	//a.insert(0); a.insert(1);
@@ -207,6 +198,95 @@ int main()
 	//cout << "查找a和b的迭代器如果地址一致，就说明仅仅和内容有关" << endl;
 	//cout << (c.find(a) == c.find(b)) << endl;
 	//cout << "测试成功, 内容的确仅仅和set的内容又关，与地址无关" << endl;
+	
+	//cout << "测试set对象的传递是值还是引用" << endl;
+	//set<int> a, b;
+	//a.insert(0);
+	//b = a;
+	//a.clear();
+	//set<set<int>> c;
+	//c.insert(b);
 
+	//cout << "b的大小：如果a和b指向同一个对象, 则b的大小为0, 否则为1" << endl;
+	//cout << "a的大小: " << a.size() << endl << "b的大小: " << b.size() << endl;
+	//cout << "遍历set" << endl;
+	//b.clear();
+	//for (auto p : c) {
+	//	cout << "c中b的元素个数: " << p.size() << endl;
+	//}
+	//cout << "b的元素个数: " << b.size() << endl;
+
+	//set<set<int>> set1;
+	//set<int> *set2, *set3;
+	//set2 = new set<int>;
+	//set3 = new set<int>;
+	//set2->insert(2333), set3->insert(1);
+	//set1.insert(*set2);
+	//set1.insert(*set3);
+	//delete set2;
+	//delete set3;
+
+	//cout << set1.size() << endl;
+	//for (auto s : set1)
+	//	for (auto i : s)cout << "集合中的元素: " << i << endl;
+
+
+	//set<int> *set11 = new set<int>;
+	//set<int> set12;
+	//set12.insert(2333);
+	//cout << "set11 的地址变化了吗:" << set11 << endl;
+	//*set11 = set12;
+	//cout << "set11 的地址变化了吗:" << set11 << endl;
+	//cout << "set11 的内容: " << *(set11->begin()) << endl;
+	//cout << "测试成功! set 的地址没变" << endl;
+	//delete set11;
+
+	//map<char, int> m, *testmap = nullptr;
+	//m['a'] = 1;
+	//cout << m.count('a') << "  " << m.count(1) << endl;
+	//*testmap = m;
+	//cout << "测试在nullptr为初始值的情况下，不能复制,下面这行代码会出错" << endl;
+	//cout << testmap->count('a') << endl;
+
+	//cout << "测试 stirng后能否自动将int转为string" << endl;
+	//string test = string("这是一个加号方法将int转为string的测试，数字：") + string(5);
+	//cout << "C++不能支持string和int直接转换, 需要借助字符数组或者sstream" << endl;
+
+	//cout << "测试分配在栈上的string对象能否在不初始化情况下自动进行+=操作" << endl;
+	//string s;
+	//s += "我去";
+	//cout << s << endl;
+
+	//cout << "测试字符串相等性" << endl;
+	//cout << (string() == "") << endl;
+
+	////cout << "测试正规式转为 NFA" << endl;
+	string n1 = "ab", n2 = "a|b", n3 = "a*";
+	////string n4 = "(ab|a)(a|bc*)*";
+	NFA *nfa1 = regexp2NFA(n1);
+	NFA* nfa2 = regexp2NFA(n2);
+	NFA* nfa3 = regexp2NFA(n3);
+	//NFA* nfa4 = regexp2NFA(n4);
+	cout << "输出nfa以便检查" << endl;
+	//cout << *nfa1 << *nfa2 << *nfa3 << *nfa4;
+
+	cout << *nfa1 << *nfa2 << *nfa3 << endl;
+	cout << "测试NFA转DFA" << endl;
+	DFA *dfa1 = nfa2dfa(nfa1);
+	DFA *dfa2 = nfa2dfa(nfa2);
+	DFA *dfa3 = nfa2dfa(nfa3);
+	cout << *dfa1;
+	cout << *dfa2;
+	cout << *dfa3;
+	cout << "正规式转换为NFA成功" << endl;
+	cout << "销毁所有NFA" << endl;
+
+	////cout << "输出NFA: " << *nfa1 << endl;
+	////DFA *dfa4 = nfa2dfa(nfa1);
+	NFA::destroy_all_nfa();
+	cout << "销毁完成" << endl;
+	cout << "销毁所有DFA" << endl;
+	DFA::destroy_all_dfa();
+	cout << "销毁完成" << endl;
     return 0;
 }
