@@ -152,7 +152,7 @@ namespace NFA2DFA {
 		return alpha_set;
 	}
 
-	// 将访问到的 NFA 结点加入队列和集合, 一步转移的辅助函数
+	// 将访问到的 NFA 结点加入队列和集合, 一步转移的辅助函数, 只将ε边的结点加入队列遍历
 	void vis_NFA_nodes(N_node *cur_node, char ch, queue<N_node*> &bfs, set<N_node*> &vis) {
 		vector<N_node*> *next_nodes = cur_node->next[ch];
 		for (auto n : *next_nodes) {
@@ -167,24 +167,24 @@ namespace NFA2DFA {
 		for (auto n : s)q.push(n);
 	}
 
-	// 一步转移
+	// 一步转移, ε边可以走多步, 但是正常字符边只能走一步, 不能做dfs或者bfs
 	set<N_node*> *move(set<N_node*> *cur, char ch) {
 		queue<N_node*> bfs;
 		set<N_node*> vis;// vis作用2个: 1. bfs 查重  2. 记录move过程中的结点, 最终vis得到的就是本次的次态结点集
 		set<N_node*> *node_set = nullptr;
 		bool init = false;
-		// 初始化, 为了避免重复记录出发的结点正确, 第一次压入栈时不记录
-		push_NFA_node_2_queue(bfs, *cur);
-		// 开始转移
+		// 一步转移
+		for (auto node : *cur) {
+			if (node->has_char(ch)) {
+				if (init == false)init = true;
+				vis_NFA_nodes(node, ch, bfs, vis);
+			}
+		}
+		// 求ε闭包
 		while(!bfs.empty()) {
 			N_node *cur_node = bfs.front(); bfs.pop();
 			if (cur_node->has_char(epsilon)) {
-				if (init == false)init = true;
 				vis_NFA_nodes(cur_node, epsilon, bfs, vis);
-			}
-			if (ch != epsilon && cur_node->has_char(ch)) {
-				if (init == false)init = true;
-				vis_NFA_nodes(cur_node, ch, bfs, vis);
 			}
 		}
 		if (init) {

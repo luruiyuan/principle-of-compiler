@@ -261,23 +261,37 @@ int main()
 	//cout << (string() == "") << endl;
 
 	////cout << "测试正规式转为 NFA" << endl;
-	string n1 = "ab", n2 = "a|b", n3 = "a*";
+	string n1 = "ab", n2 = "a|b", n3 = "a*", n4 = "ab*", n5 = "a*b", n6 = "a*b*", n7 = "(a|b)*(aa|bb)(a|b)*";
 	////string n4 = "(ab|a)(a|bc*)*";
 	NFA *nfa1 = regexp2NFA(n1);
 	NFA* nfa2 = regexp2NFA(n2);
 	NFA* nfa3 = regexp2NFA(n3);
+	NFA* nfa4 = regexp2NFA(n4);
+	NFA* nfa5 = regexp2NFA(n5);
+	NFA* nfa6 = regexp2NFA(n6);
+	NFA* nfa7 = regexp2NFA(n7);
 	//NFA* nfa4 = regexp2NFA(n4);
 	cout << "输出nfa以便检查" << endl;
 	//cout << *nfa1 << *nfa2 << *nfa3 << *nfa4;
 
 	cout << *nfa1 << *nfa2 << *nfa3 << endl;
+	cout << *nfa4 << *nfa5 << *nfa6 << endl;
+	cout << *nfa7 << endl;
 	cout << "测试NFA转DFA" << endl;
 	DFA *dfa1 = nfa2dfa(nfa1);
 	DFA *dfa2 = nfa2dfa(nfa2);
 	DFA *dfa3 = nfa2dfa(nfa3);
+	DFA *dfa4 = nfa2dfa(nfa4);
+	DFA *dfa5 = nfa2dfa(nfa5);
+	DFA *dfa6 = nfa2dfa(nfa6);
+	DFA *dfa7 = nfa2dfa(nfa7);
 	cout << *dfa1;
 	cout << *dfa2;
 	cout << *dfa3;
+	cout << *dfa4;
+	cout << *dfa5;
+	cout << *dfa6;
+	cout << *dfa7;
 	cout << "正规式转换为NFA成功" << endl;
 	cout << "销毁所有NFA" << endl;
 
