@@ -6,7 +6,7 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include <fstream>
+//#include <fstream>
 using namespace std;
 
 // 包含表单类
@@ -41,7 +41,7 @@ int main()
 {
 	// 检测内存泄露
 	EnableMemLeakCheck();
-	//_CrtSetBreakAlloc(1037);
+	//_CrtSetBreakAlloc(4069);
 
 	//cout << "输出流重载测试" << endl;
 	//streambuf* cout_stream = cout.rdbuf();// 存储cout缓冲区
@@ -261,7 +261,18 @@ int main()
 	//cout << (string() == "") << endl;
 
 	////cout << "测试正规式转为 NFA" << endl;
-	string n1 = "ab", n2 = "a|b", n3 = "a*", n4 = "ab*", n5 = "a*b", n6 = "a*b*", n7 = "(a|b)*(aa|bb)(a|b)*";
+
+	//cout << "测试for循环中使用vector构造函数, 在for循环的外层 map 中嵌套vector得到的结果如何" << endl;
+	//map<int, vector<char>> test_m;
+	//for (int i = 0; i < 10; i++) {
+	//	test_m[i] = vector<char>();
+	//	test_m[i].push_back('a' + i);
+	//}
+	//cout << "测试for循环外能否访问vector" << endl;
+	//for (auto p : test_m)cout << "key: " << p.first << " value:" << p.second[0] << endl;
+	//cout << "这种操作真的有，测试完成" << endl;
+
+	string n1 = "ab", n2 = "a|b", n3 = "a*", n4 = "ab*", n5 = "a*b", n6 = "a*b*", n7 = "(a|b)*(aa|bb)(a|b)*", n8="(a|b)*", n9="(a|b)*(aa|bb)";
 	////string n4 = "(ab|a)(a|bc*)*";
 	NFA *nfa1 = regexp2NFA(n1);
 	NFA* nfa2 = regexp2NFA(n2);
@@ -270,13 +281,14 @@ int main()
 	NFA* nfa5 = regexp2NFA(n5);
 	NFA* nfa6 = regexp2NFA(n6);
 	NFA* nfa7 = regexp2NFA(n7);
-	//NFA* nfa4 = regexp2NFA(n4);
+	NFA* nfa8 = regexp2NFA(n8);
+	NFA* nfa9 = regexp2NFA(n9);
 	cout << "输出nfa以便检查" << endl;
 	//cout << *nfa1 << *nfa2 << *nfa3 << *nfa4;
 
-	cout << *nfa1 << *nfa2 << *nfa3 << endl;
-	cout << *nfa4 << *nfa5 << *nfa6 << endl;
-	cout << *nfa7 << endl;
+	//cout << *nfa1 << *nfa2 << *nfa3 << endl;
+	//cout << *nfa4 << *nfa5 << *nfa6 << endl;
+	//cout << *nfa7 << endl;
 	cout << "测试NFA转DFA" << endl;
 	DFA *dfa1 = nfa2dfa(nfa1);
 	DFA *dfa2 = nfa2dfa(nfa2);
@@ -285,6 +297,8 @@ int main()
 	DFA *dfa5 = nfa2dfa(nfa5);
 	DFA *dfa6 = nfa2dfa(nfa6);
 	DFA *dfa7 = nfa2dfa(nfa7);
+	DFA *dfa8 = nfa2dfa(nfa8);
+	DFA *dfa9 = nfa2dfa(nfa9);
 	cout << *dfa1;
 	cout << *dfa2;
 	cout << *dfa3;
@@ -292,15 +306,28 @@ int main()
 	cout << *dfa5;
 	cout << *dfa6;
 	cout << *dfa7;
+	cout << *dfa8;
+	cout << *dfa9;
 	cout << "正规式转换为NFA成功" << endl;
-	cout << "销毁所有NFA" << endl;
 
-	////cout << "输出NFA: " << *nfa1 << endl;
-	////DFA *dfa4 = nfa2dfa(nfa1);
+	cout << "测试DFA化简" << endl;
+	simplify_DFA(dfa1); cout << *dfa1 << endl;
+	simplify_DFA(dfa2); cout << *dfa2 << endl;
+	simplify_DFA(dfa3); cout << *dfa3 << endl;
+	simplify_DFA(dfa4); cout << *dfa4 << endl;
+	simplify_DFA(dfa5); cout << *dfa5 << endl;
+	simplify_DFA(dfa6); cout << *dfa6 << endl;
+	simplify_DFA(dfa7); cout << *dfa7 << endl;
+	simplify_DFA(dfa8); cout << *dfa8 << endl;
+	simplify_DFA(dfa9); cout << *dfa9 << endl;
+
+
+	cout << "销毁所有NFA" << endl;
 	NFA::destroy_all_nfa();
 	cout << "销毁完成" << endl;
 	cout << "销毁所有DFA" << endl;
 	DFA::destroy_all_dfa();
 	cout << "销毁完成" << endl;
+
     return 0;
 }

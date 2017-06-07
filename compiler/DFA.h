@@ -68,8 +68,8 @@ struct DFA_node
 		return status &(1 << DFA_space::DEAD);
 	}
 
+	// 后添加的边会覆盖前面的边, 这里是需要覆盖的
 	int add_next(char ch, D_node *node) {
-		if (has_next(ch))return -1;
 		next[ch] = node;
 		return 0;
 	}
@@ -148,9 +148,40 @@ public:
 		return set2N_node[*s];
 	}
 
+	void set_simplyfied(bool is_simplyfied) {
+		this->is_simplified = is_simplyfied;
+	}
+
+	bool has_simplified() {
+		return this->is_simplified;
+	}
+	// 销毁当前DFA的结点但不析构当前DFA
+	// 用于DFA化简
+	void destroy_cur_dfa_nodes() {
+		if (this->start == nullptr)return;
+		queue<D_node*> bfs_q;
+		set<D_node*> &vis = vis_D_node;
+		bfs_q.push(start);
+		vis.insert(start);
+		while (!bfs_q.empty()) {
+			D_node *dn = bfs_q.front(); bfs_q.pop();
+			for (auto p : dn->next) {
+				if (vis.count(p.second) > 0)continue;
+				vis.insert(p.second);
+				bfs_q.push(p.second);
+			}
+			delete dn;
+		}
+	}
+	
+	// 将DFA的next_id属性初始化, 用于化简时构建新的DFA时的结点id初始化
+	void init_next_id() {
+		this->next_id = 0;
+	}
+	
 private:
 	int next_id;
-	bool is_simplyfied; // 是否化简过
+	bool is_simplified; // 是否化简过
 
 	string regexp;
 	D_node *start;
@@ -166,16 +197,17 @@ private:
 		Table t;
 		string sufix = "化简的 " + dfa.get_regexp() + " DFA表";
 		const string arrow = "---> ";
-		string t_name = dfa.is_simplyfied ? string("已") + sufix : string("未") + sufix;
+		string t_name = dfa.is_simplified ? string("已") + sufix : string("未") + sufix;
 		t.set_table_name(t_name);
 		// 表头
 		vector<Cell> head;
 		Cell c1, c2, c3, c4;
 		c1.insert_line(string("当前结点id"));
-		c2.insert_line(string("当前结点包含的NFA结点id"));
+		if (!dfa.is_simplified)c2.insert_line(string("当前结点包含的NFA结点id")); // 如果未化简, 则添加NFA结点id, 化简后可能不具有对应关系
 		c3.insert_line(string("可接受的字符 " + arrow + "次态DFA结点id"));
 		c4.insert_line(string("备注"));
-		head.push_back(c1); head.push_back(c2); head.push_back(c3); head.push_back(c4);
+		head.push_back(c1); if (!dfa.is_simplified)head.push_back(c2);
+		head.push_back(c3); head.push_back(c4);
 		t.set_table_head(head);
 
 		// 开始 bfs
@@ -193,18 +225,20 @@ private:
 			// 加入当前结点 id
 			sprintf_s(buff, 100, "%d", node->id);
 			cur_id.insert_line(string(buff));
-			// 将当前DFA结点包含的 NFA 结点 id 加入输出表项, 尝试换行和输出
-			string nfa_id;
-			int cnt = 0;
-			for (auto nfa_n : *node->NFA_nodes) {
-				sprintf_s(buff, 100, "%d, ", nfa_n->id);
-				nfa_id += buff;
-				if ((++cnt) % 5 == 0) {
-					n_id.insert_line(nfa_id);
-					nfa_id = "";
+			if(!dfa.is_simplified){
+				// 如果未化简, 则将当前DFA结点包含的 NFA 结点 id 加入输出表项, 尝试换行和输出
+				string nfa_id;
+				int cnt = 0;
+				for (auto nfa_n : *node->NFA_nodes) {
+					sprintf_s(buff, 100, "%d, ", nfa_n->id);
+					nfa_id += buff;
+					if ((++cnt) % 5 == 0) {
+						n_id.insert_line(nfa_id);
+						nfa_id = "";
+					}
 				}
+				if (nfa_id != "")n_id.insert_line(nfa_id);
 			}
-			if (nfa_id != "")n_id.insert_line(nfa_id);
 			// 加入备注, 注意 DFA中存在闭包, 因此一个结点可能既是起始结点又是终结结点
 			if (node->is_start() && node->is_end())comment.insert_line(string("起始结点|终结结点"));
 			else if (node->is_start())comment.insert_line(string("起始结点"));
@@ -227,7 +261,9 @@ private:
 				string s("无");
 				ac_ch.insert_line(s);
 			}
-			line.push_back(cur_id); line.push_back(n_id); line.push_back(ac_ch); line.push_back(comment);
+			line.push_back(cur_id);
+			if (!dfa.is_simplified)line.push_back(n_id);
+			line.push_back(ac_ch); line.push_back(comment);
 			t.insert_row(line);
 		}
 		out << t << endl;
@@ -244,24 +280,11 @@ DFA::DFA()
 {
 	dfa_destroy.push(this);
 	this->next_id = 0;
-	is_simplyfied = false;
+	is_simplified = false;
 }
 
 DFA::~DFA()
 {
 	delete this->alpha_table;
-	queue<D_node*> bfs_q;
-	set<D_node*> &vis = vis_D_node;
-
-	bfs_q.push(start);
-	vis.insert(start);
-	while (!bfs_q.empty()) {
-		D_node *dn = bfs_q.front(); bfs_q.pop();
-		for (auto p : dn->next) {
-			if (vis.count(p.second) > 0)continue;
-			vis.insert(p.second);
-			bfs_q.push(p.second);
-		}
-		delete dn;
-	}
+	this->destroy_cur_dfa_nodes();
 }
