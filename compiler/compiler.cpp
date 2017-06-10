@@ -321,6 +321,10 @@ int main()
 	simplify_DFA(dfa8); cout << *dfa8 << endl;
 	simplify_DFA(dfa9); cout << *dfa9 << endl;
 
+	// 测试DFA遍历功能
+	cout << dfa1->is_acceptable(string("ab")) << endl;
+	cout << dfa1->is_acceptable(string("abc")) << endl;
+
 
 	cout << "销毁所有NFA" << endl;
 	NFA::destroy_all_nfa();
@@ -328,6 +332,7 @@ int main()
 	cout << "销毁所有DFA" << endl;
 	DFA::destroy_all_dfa();
 	cout << "销毁完成" << endl;
+
 
     return 0;
 }

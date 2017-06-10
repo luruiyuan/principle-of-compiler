@@ -173,12 +173,30 @@ public:
 			delete dn;
 		}
 	}
-	
+
 	// 将DFA的next_id属性初始化, 用于化简时构建新的DFA时的结点id初始化
 	void init_next_id() {
 		this->next_id = 0;
 	}
-	
+
+	bool is_acceptable(string &s) {
+		if (this->next_id == 0 || this->start == nullptr) {
+			cout << "DFA尚未初始化, 判定失败" << endl;
+			return false;
+		}
+		if (s.length() == 0) {
+			cout << "传入的字符串为空, 判定失败" << endl;
+			return false;
+		}
+		// 开始遍历DFA
+		D_node *cur_node = this->start;
+		for (auto cur : s) {
+			if (!cur_node->has_next(cur))return false;
+			cur_node = cur_node->get_next_node(cur);
+		}
+		return cur_node->is_end();
+	}
+
 private:
 	int next_id;
 	bool is_simplified; // 是否化简过
@@ -225,7 +243,7 @@ private:
 			// 加入当前结点 id
 			sprintf_s(buff, 100, "%d", node->id);
 			cur_id.insert_line(string(buff));
-			if(!dfa.is_simplified){
+			if (!dfa.is_simplified) {
 				// 如果未化简, 则将当前DFA结点包含的 NFA 结点 id 加入输出表项, 尝试换行和输出
 				string nfa_id;
 				int cnt = 0;

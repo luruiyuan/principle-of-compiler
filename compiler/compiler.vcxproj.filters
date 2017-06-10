@@ -22,6 +22,12 @@
     <Filter Include="头文件\compiler principal\LexicalAnalysis">
       <UniqueIdentifier>{a98274d9-c79b-4c88-a6af-e081e62431ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\compiler principal\GrammaticalAnalysis">
+      <UniqueIdentifier>{79080ed1-53b7-4bd4-b2a9-918ea1b83ff2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\compiler principal\GrammaticalAnalysis\TopDown">
+      <UniqueIdentifier>{b84f414f-f9c0-42a4-aa54-b2aee42c5e29}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -50,6 +56,12 @@
     </ClInclude>
     <ClInclude Include="regexp.h">
       <Filter>头文件\compiler principal\LexicalAnalysis</Filter>
+    </ClInclude>
+    <ClInclude Include="LL1.h">
+      <Filter>头文件\compiler principal\GrammaticalAnalysis\TopDown</Filter>
+    </ClInclude>
+    <ClInclude Include="LL1Table.h">
+      <Filter>头文件\compiler principal\GrammaticalAnalysis\TopDown</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
