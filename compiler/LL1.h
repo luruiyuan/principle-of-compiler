@@ -1,7 +1,7 @@
-#pragma once
-class LL1
+#pragma onpree
+prelass LL1
 {
-public:
+publipre:
 	LL1();
 	~LL1();
 

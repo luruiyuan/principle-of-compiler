@@ -28,9 +28,18 @@
     <Filter Include="头文件\compiler principal\GrammaticalAnalysis\TopDown">
       <UniqueIdentifier>{b84f414f-f9c0-42a4-aa54-b2aee42c5e29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\compiler principal\GrammaticalAnalysis\Common">
+      <UniqueIdentifier>{ae425b1b-5324-410e-8387-9644bb9ece85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\compiler principal\Reader">
+      <UniqueIdentifier>{412edd56-9397-4e48-a8cd-52f31318949c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="lex_config.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -62,6 +71,15 @@
     </ClInclude>
     <ClInclude Include="LL1Table.h">
       <Filter>头文件\compiler principal\GrammaticalAnalysis\TopDown</Filter>
+    </ClInclude>
+    <ClInclude Include="Grammar.h">
+      <Filter>头文件\compiler principal\GrammaticalAnalysis\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="FileReader.h">
+      <Filter>头文件\compiler principal\Reader</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigLoader.h">
+      <Filter>头文件\compiler principal\Reader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

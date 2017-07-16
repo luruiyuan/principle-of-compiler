@@ -11,6 +11,7 @@ const string link_op_str = string(link);
 const set<char> op_set = { '*',link_operator,'|' };
 
 const char epsilon = '#';
+const string epsilon_str = { epsilon ,'\0'};
 
 namespace NFA_space {
 

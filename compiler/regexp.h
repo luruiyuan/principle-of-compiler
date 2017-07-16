@@ -22,12 +22,14 @@ map<char, int> preprocess() {
 	return m;
 }
 
+set<char> special = { '.','`','^','\"' };
+
 bool is_digit(char c) {
 	return c >= '0'&&c <= '9';
 }
 
 bool is_alpha(char c) {
-	return c >= 'A'&&c <= 'Z' || c >= 'a'&&c <= 'z';
+	return c >= 'A'&&c <= 'Z' || c >= 'a'&&c <= 'z' || special.count(c);
 }
 
 namespace reg2NFA {
@@ -38,7 +40,7 @@ namespace reg2NFA {
 		stack<char> op;
 		string postfix;
 		for (auto ch : infix) {
-			if (is_alpha(ch) || is_digit(ch))postfix += ch;
+			if (is_alpha(ch) || is_digit(ch)||special.count(ch))postfix += ch;
 			else {
 				//ch == '(' || op.top() == '(' 是两件事: 没入栈的左括号优先级最高，入栈后优先级最低
 				if (op.empty() || ch == '(' || op.top() == '(' || lookup_table[ch] > lookup_table[op.top()]) op.push(ch);
@@ -81,7 +83,7 @@ namespace reg2NFA {
 		string regexp = reg;
 		for (int cur = 0, next = 1; next < regexp.length(); cur++, next++) {
 			char c = regexp[cur], n = regexp[next];
-			if (n == '(' || is_alpha(n))
+			if (n == '(' || is_alpha(n)||special.count(n))
 				if (c == ')' || c == '*' || is_alpha(c))
 					regexp.insert(next, link_op_str);
 		}
@@ -90,13 +92,14 @@ namespace reg2NFA {
 
 	NFA* regexp2NFA(string& regexp) {
 		// 预处理: 添加连接符, 转化为后缀形式
+		cout << "正在将正规式转化为NFA, 请稍后..." << endl;
 		string& t_str = add_link_op(regexp);
 		string& reg = infix2postfix(t_str);
 		stack<NFA*> s;
 		try
 		{
 			for (auto ch : reg) {
-				if (is_alpha(ch) || is_digit(ch)) {
+				if (is_alpha(ch) || is_digit(ch)|| special.count(ch)) {
 					NFA* nfa = new NFA(ch);
 					s.push(nfa);
 				}
@@ -138,6 +141,7 @@ namespace reg2NFA {
 		s.pop();
 		nfa_ptr->init_start_end_node();
 		nfa_ptr->set_regexp(regexp);
+		cout << "正规式转化为NFA完成!" << endl;
 		return nfa_ptr;
 	}
 }
@@ -151,7 +155,7 @@ namespace NFA2DFA {
 	set<char> * get_alpha_table(string &reg) {
 		set<char> *alpha_set = new set<char>;
 		for (auto ch : reg)
-			if (is_alpha(ch) || is_digit(ch))
+			if (is_alpha(ch) || is_digit(ch)||special.count(ch))
 				alpha_set->insert(ch);
 		return alpha_set;
 	}
@@ -227,6 +231,7 @@ namespace NFA2DFA {
 
 	DFA* nfa2dfa(NFA *nfa) {
 		if (nfa == nullptr || nfa->get_start() == nullptr)return nullptr;
+		cout << "正在将NFA转化为DFA，请稍后..." << endl;
 
 		// 如果我们需要通过一步转移来计算每个DFA结点的NFA结点集合，那么我们需要通过一个个结点集合来构造DFA
 		DFA *new_dfa = new DFA;
@@ -270,6 +275,7 @@ namespace NFA2DFA {
 			}
 		}
 		new_dfa->set_regexp(nfa->get_regexp());
+		cout << "NFA转化为DFA完成!" << endl;
 		return new_dfa;
 	}
 
@@ -359,11 +365,11 @@ namespace NFA2DFA {
 
 	// 化简DFA
 	void simplify_DFA(DFA *dfa) {
-		if (dfa == nullptr || dfa->get_start_node() == nullptr || dfa->has_simplified()) {
-			cout << "DFA为 nullptr 或已经被化简过, 请检查传入的 DFA" << endl;
+		if (dfa == nullptr || dfa->get_start_node() == nullptr) {
+			cout << "DFA为 nullptr 请检查传入的 DFA" << endl;
 			return;
 		}
-
+		cout << "正在化简DFA，请稍后..." << endl;
 		dfa->set_simplyfied(true);
 
 		set<set<D_node*>> cur_groups;// 当前分组
@@ -441,5 +447,8 @@ namespace NFA2DFA {
 		for (auto ptr : res_nodes_addr)delete ptr;
 		dfa->destroy_cur_dfa_nodes();
 		dfa->set_start_node(new_start);
+
+		cout << "化简DFA完成!" << endl;
+
 	}
 }

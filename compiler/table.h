@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 
-#include "cell.h"
+#include "Cell.h"
 using namespace std;
 
 // 表单类
@@ -16,7 +16,7 @@ public:
 	Table();
 	~Table();
 
-	Cell& get_cell(int row, int col) {
+	Cell& get_Cell(int row, int col) {
 		return this->content[row][col];
 	}
 
@@ -127,19 +127,19 @@ public:
 		//输出第一行, 第一行一定是横线
 		sep_line(col_widths, col, out);
 
-		// 绘制一行内容以及每行之后的分割线, 注意每个cell内可能有多行内容  例如,
+		// 绘制一行内容以及每行之后的分割线, 注意每个Cell内可能有多行内容  例如,
 		//|小明|dog           |
 		//|    |this is a shit|
 		//+----+--------------+
 		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < row_heights[i]; j++) { // j 为每个cell内的行数
+			for (int j = 0; j < row_heights[i]; j++) { // j 为每个Cell内的行数
 				out << "|";
-				for (int k = 0; k < content[i].size();k++) { // 遍历每行k个cell
-					Cell cell = content[i][k];
+				for (int k = 0; k < content[i].size();k++) { // 遍历每行k个Cell
+					Cell Cell = content[i][k];
 					int sp = col_widths[k]; // sp记录打印的空格个数
 					// 有有效输出时, 输出内容,并用空格补足空位, 否则直接输出空格占位
-					if (j < cell.get_height()) {
-						string s = cell.get_line(j);
+					if (j < Cell.get_height()) {
+						string s = Cell.get_line(j);
 						out << s;
 						sp -= s.length();
 					}
@@ -196,8 +196,8 @@ Table::~Table()
 {
 	this->name.clear();
 	for (auto vec : content) {
-		for (auto cell : vec)
-			cell.~Cell();
+		for (auto Cell : vec)
+			Cell.~Cell();
 		vec.clear();
 	}
 	content.clear();

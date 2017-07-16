@@ -7,7 +7,7 @@
 #include <fstream>
 using namespace std;
 
-// 每一个单元格都是一个 cell
+// 每一个单元格都是一个 Cell
 class Cell
 {
 public:
@@ -22,8 +22,23 @@ public:
 		return this->height;
 	}
 
-	int insert_line(string& s) {
-		return this->insert_line(this->get_height(), s);
+	// 每一定数量字母后换行
+	int insert_line(string& s, int line_width=Cell::line_width) {
+		if ((int)s.length() <= line_width)return this->insert_line(this->get_height(), s);
+		char *buff = new char[line_width + 1];
+		int index;
+		buff[line_width] = '\0';
+		for (int i = 0; i < (int)s.length(); i++) {
+			if (i > 0 && i%line_width == 0) index = insert_line(this->get_height(), string(buff));
+			buff[i%line_width] = s[i];
+		}
+		int rest_len = (int)s.length() % line_width;
+		if (rest_len) {
+			buff[rest_len] = '\0';
+			index = insert_line(get_height(), string(buff));
+		}
+		delete[] buff;
+		return index;
 	}
 
 	int insert_line(int index, string& s) {
@@ -37,6 +52,19 @@ public:
 		this->height = lines.size();
 		this->width = s.length() > this->width ? s.length() : this->width;
 		return index;
+	}
+
+	// 将一个长字符串插入后得到多少行
+	int get_line_num_of_contents(string &content, const int line_width=Cell::line_width) {
+		int len = (int)content.length();
+		int rest = (int)content.length() % line_width;
+		return (int)content.length() / line_width + ((int)content.length() % line_width > 0);
+	}
+
+	// 添加空行
+	int add_new_blan_lines(int num=1) {
+		while ((num--) > 0)this->insert_line(string());
+		return this->get_height();
 	}
 
 	vector<string> get_all_lines() {
@@ -59,16 +87,19 @@ public:
 	}
 
 	//仅限调试
-	friend ostream& operator<< (ostream& out, Cell& cell) {
-		for (auto line : cell.get_all_lines())
+	friend ostream& operator<< (ostream& out, Cell& Cell) {
+		for (auto line : Cell.get_all_lines())
 			out << line;
 		return out;
 	}
 
 private:
 	vector<string> lines;
-	int width, height;
+	int width, height, sep_width;
+	const static int line_width;
 };
+
+const int Cell::line_width = 40;
 
 Cell::Cell()
 {

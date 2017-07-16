@@ -18,7 +18,16 @@ using namespace NFA2DFA;
 
 // 包含NFA
 #include "NFA.h"
+#include "DFA.h"
 
+// 包含Grammar
+#include "Grammar.h"
+
+// 包含FileReader
+#include "FileReader.h"
+
+// 包含ConfigLoader
+#include "ConfigLoader.h"
 
 
 // 内存泄漏检测
@@ -37,11 +46,25 @@ void EnableMemLeakCheck()
 	_CrtSetDbgFlag(tmpFlag);
 }
 
+void output_split_production(string &left, set<string> &right) {
+	cout << "左部: " << left << endl;
+	string r;
+	for (string s : right)r += s + "|";
+	cout << "右部: " << r.substr(0, r.length() - 1) << endl;
+}
+
+void print_map(map<string, string> &m, char* map_name="\0") {
+	cout << "map名称: " << map_name << endl;
+	for (auto p : m)
+		cout << "\t key: \"" << p.first << "\"---> value: \"" << p.second << "\"" << endl;
+	cout << "打印完成" << endl;
+}
+
 int main()
 {
 	// 检测内存泄露
 	EnableMemLeakCheck();
-	//_CrtSetBreakAlloc(4069);
+	//_CrtSetBreakAlloc(271);
 
 	//cout << "输出流重载测试" << endl;
 	//streambuf* cout_stream = cout.rdbuf();// 存储cout缓冲区
@@ -272,67 +295,95 @@ int main()
 	//for (auto p : test_m)cout << "key: " << p.first << " value:" << p.second[0] << endl;
 	//cout << "这种操作真的有，测试完成" << endl;
 
-	string n1 = "ab", n2 = "a|b", n3 = "a*", n4 = "ab*", n5 = "a*b", n6 = "a*b*", n7 = "(a|b)*(aa|bb)(a|b)*", n8="(a|b)*", n9="(a|b)*(aa|bb)";
-	////string n4 = "(ab|a)(a|bc*)*";
-	NFA *nfa1 = regexp2NFA(n1);
-	NFA* nfa2 = regexp2NFA(n2);
-	NFA* nfa3 = regexp2NFA(n3);
-	NFA* nfa4 = regexp2NFA(n4);
-	NFA* nfa5 = regexp2NFA(n5);
-	NFA* nfa6 = regexp2NFA(n6);
-	NFA* nfa7 = regexp2NFA(n7);
-	NFA* nfa8 = regexp2NFA(n8);
-	NFA* nfa9 = regexp2NFA(n9);
-	cout << "输出nfa以便检查" << endl;
-	//cout << *nfa1 << *nfa2 << *nfa3 << *nfa4;
 
-	//cout << *nfa1 << *nfa2 << *nfa3 << endl;
-	//cout << *nfa4 << *nfa5 << *nfa6 << endl;
-	//cout << *nfa7 << endl;
-	cout << "测试NFA转DFA" << endl;
-	DFA *dfa1 = nfa2dfa(nfa1);
-	DFA *dfa2 = nfa2dfa(nfa2);
-	DFA *dfa3 = nfa2dfa(nfa3);
-	DFA *dfa4 = nfa2dfa(nfa4);
-	DFA *dfa5 = nfa2dfa(nfa5);
-	DFA *dfa6 = nfa2dfa(nfa6);
-	DFA *dfa7 = nfa2dfa(nfa7);
-	DFA *dfa8 = nfa2dfa(nfa8);
-	DFA *dfa9 = nfa2dfa(nfa9);
-	cout << *dfa1;
-	cout << *dfa2;
-	cout << *dfa3;
-	cout << *dfa4;
-	cout << *dfa5;
-	cout << *dfa6;
-	cout << *dfa7;
-	cout << *dfa8;
-	cout << *dfa9;
-	cout << "正规式转换为NFA成功" << endl;
+//////////////////////////////////////////////////////////////////////////
+	////string alpha_n = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)(0|1|2|3|4|5|6|7|8|9|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)*";
+	//string alpha_n = "a*b*";
+	//NFA* alpha_nfa = regexp2NFA(alpha_n);
+	//cout << "输出nfa以便检查" << endl;
+	//cout << *alpha_nfa << endl;
+	//cout << "测试NFA转DFA" << endl;
+	//DFA *alpha_dfa = nfa2dfa(alpha_nfa);
+	//cout << *alpha_dfa;
+	//cout << "正规式转换为NFA成功" << endl;
 
-	cout << "测试DFA化简" << endl;
-	simplify_DFA(dfa1); cout << *dfa1 << endl;
-	simplify_DFA(dfa2); cout << *dfa2 << endl;
-	simplify_DFA(dfa3); cout << *dfa3 << endl;
-	simplify_DFA(dfa4); cout << *dfa4 << endl;
-	simplify_DFA(dfa5); cout << *dfa5 << endl;
-	simplify_DFA(dfa6); cout << *dfa6 << endl;
-	simplify_DFA(dfa7); cout << *dfa7 << endl;
-	simplify_DFA(dfa8); cout << *dfa8 << endl;
-	simplify_DFA(dfa9); cout << *dfa9 << endl;
-
-	// 测试DFA遍历功能
-	cout << dfa1->is_acceptable(string("ab")) << endl;
-	cout << dfa1->is_acceptable(string("abc")) << endl;
+	//cout << "测试DFA化简" << endl;
+	//simplify_DFA(alpha_dfa); cout << *alpha_dfa << endl;
+	// //测试DFA遍历功能
+	//cout << alpha_dfa->is_acceptable(string("ab")) << endl;
 
 
-	cout << "销毁所有NFA" << endl;
-	NFA::destroy_all_nfa();
-	cout << "销毁完成" << endl;
-	cout << "销毁所有DFA" << endl;
-	DFA::destroy_all_dfa();
-	cout << "销毁完成" << endl;
+	//cout << "销毁所有NFA" << endl;
+	//NFA::destroy_all_nfa();
+	//cout << "销毁完成" << endl;
+	//cout << "销毁所有DFA" << endl;
+	//DFA::destroy_all_dfa();
+	//cout << "销毁完成" << endl;
 
+	////测试产生式和语法分析
+	//cout << endl << endl;
+	//cout << "测试产生式和语法分析" << endl;
+	//Grammer g1;
+	//string pro1 = "S->Axy", pro2 = "A->E+E|E*E|E/E|E-E", pro3 = "E->i*i", pro4 = "S->Sabc|abc|bc|c";
+	//string left;
+	//set<string> right_part;
+	//g1.split_production(pro1, left, right_part);
+	//output_split_production(left, right_part);	
+	//right_part.clear();
+
+	//g1.split_production(pro2, left, right_part);
+	//output_split_production(left, right_part);
+	//right_part.clear();
+
+	//g1.split_production(pro3, left, right_part);
+	//output_split_production(left, right_part);
+	//right_part.clear();
+
+	//g1.split_production(pro4, left, right_part);
+	//output_split_production(left, right_part);
+
+	//cout << "测试消除左递归: " << pro4 << endl;
+	//map<string, set<string>> res_map;
+	//g1.eliminate_left_recursion(left, right_part, res_map);
+	//cout << "输出消除结果" << endl;
+	//for (auto p : res_map) {
+	//	string res = p.first + "->";
+	//	bool has_epsilon = false;
+	//	for (auto r : p.second) {
+	//		if (r == epsilon_str) {
+	//			has_epsilon = true;
+	//			continue;
+	//		}
+	//		res += r + "|";
+	//	}
+	//	if (has_epsilon)res += "ε";
+	//	else res = res.substr(0, res.length() - 1);
+	//	cout << res << endl;
+	//}
+	//cout << "测试完成" << endl;
+
+	//cout << "测试产生式和语法分析完成" << endl;
+
+
+	/*cout << "测试配置文件读取" << endl;
+	FileReader fr = FileReader("./lex_config.txt", "r", "#");
+	char ch;*/
+	/*while ((ch = fr.get_next_char()) != EOF)cout << ch;
+	cout << endl << "测试成功" << endl;*/
+	/*cout << "测试配置文件按终结符读取" << endl;
+	char *s;
+	fr.rewind_fptr();
+
+	while ((s = fr.get_next_terminal()) != nullptr)
+	cout << "符号:\"" << s << "\"" << endl;
+	cout << "测试成功" << endl;
+	fr.close();*/
+
+	ConfigLoader loader("./lex_config.txt", "r", "#");
+	loader.load_config();
+	//for (auto m : *(loader.get_config_maps()))print_map(*m);
+	cout << loader << endl;
+	
 
     return 0;
 }

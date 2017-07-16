@@ -222,7 +222,7 @@ private:
 		Cell c1, c2, c3, c4;
 		c1.insert_line(string("当前结点id"));
 		if (!dfa.is_simplified)c2.insert_line(string("当前结点包含的NFA结点id")); // 如果未化简, 则添加NFA结点id, 化简后可能不具有对应关系
-		c3.insert_line(string("可接受的字符 " + arrow + "次态DFA结点id"));
+		c3.insert_line(string("可接受的字符 " + arrow + "次态DFA结点id"), 40);
 		c4.insert_line(string("备注"));
 		head.push_back(c1); if (!dfa.is_simplified)head.push_back(c2);
 		head.push_back(c3); head.push_back(c4);

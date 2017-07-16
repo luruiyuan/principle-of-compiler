@@ -1,0 +1,93 @@
+# 这是词法分析的配置文件，# 为注释
+# ${内容}表示将大括号中的内容转换为正规式，并将最终转换为DFA
+# %内容%表示从配置文件中获得百分号中的的定义，%%与%%之间没有分隔符
+# a-b表示从a到b
+# a|b表示a并列b
+# [内容] 表示内容的每个字符是并列关系, 参照正则表达式
+# 配置为 NULL 表示该配置不存在
+
+
+# 配置基本语法元素
+{
+	name: meta,
+	elements: {
+		digit    =    [0-9],
+		char     =    [a-zA-Z],
+		minus    =    `,
+		positive =    ^,
+		sign     =    [%minus%%positive%],
+		},
+}
+
+# 配置命名规则
+
+{
+	name: rules,
+	elements: {
+			ID       =    $(%char% (%char% | %digit%)*),									# 匹配字母开头的变量名，并且包含数字的字符串
+			INT_NUM  =    $((%sign%%digit% | %digit%) %digit%*),							# 匹配整数
+			DOU_NUM  =    $((%sign%%digit% | %digit%)%digit%*.%digit%%digit%*),				# 匹配小数
+			STRING	 =	  $("(%char% | %digit% | %sign%)(%char% | %digit% | %sign%)*")		# 匹配字符串
+		}
+}
+
+# 配置关键字
+{
+	name: keywords,
+	elements:{
+		# 控制流有关关键字
+		control:{
+			IF       =    if,
+			ELSE     =    else,
+			ELSE_IF  =    NULL, # else if 的配置为NULL时为 else if，也可以配置为 elif 等其他关键字
+			WHILE    =    while,
+			DO_WHILE =    do,   # do while 的...代表任意内容
+			},
+		
+		# 数据类型有关关键字
+		type:{
+			INT      =    int,
+			DOUBLE   =    double,
+			STR      =    string,
+			BOOL     =    bool,
+			},
+		}
+}
+
+# 配置运算符
+{
+	name: operator,
+	elements:{
+		# 算数运算符
+		arithmetic:{
+			ADD      =    +,
+			SUB      =    -,
+			NEG      =    @, # 负号
+			MUL      =    *,
+			DIV      =    /,
+			LAI      =   ++, # Left Auto Increment  左自增
+			RAI      =   ++, # Right Auto Increment 右自增
+			LAD      =   --, # Left Auto Decrement  左自减
+			RAD      =   --, # Right Auto Decrement 右自减
+			},
+		# 关系运算符
+		relation:{
+			EQ       =  \=\=, # 用\转译=, 这里的含义是 == 表示相等
+			LT       =	  <,  # less than，小于
+			GT       =    >,  # greater than，大于
+			LE       =   <=,  # less than equal 小于等于
+			GE       =   >=,  # greater than equal 大于等于
+			},
+		# bool 运算符
+		boolean:{
+			AND      =    &&, # 与
+			OR       =    ||, # 或
+			NOT      =     !, # 非
+			},
+		# 数组有关运算符
+		array:{
+			L_BRACKET=     \[, # 数组左中括号
+			R_BRACKET=     \], # 数组右中括号
+			}
+		}
+}
